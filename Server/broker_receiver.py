@@ -1,7 +1,7 @@
 import paho.mqtt.client as mqtt
 from .requests import Request
 
-broker = "10.108.33.129"
+broker = "10.108.33.125"
 
 client = mqtt.Client()
 
