@@ -1,8 +1,10 @@
+from datetime import datetime
+
 from pydantic import BaseModel
 from sqlalchemy import Date
 
 class UserBase(BaseModel):
-    UUID: int
+    UID: int
     Name: str
     LastName: str
     Phone: str
@@ -50,7 +52,7 @@ class Book(BookBase):
 
 class BorrowBookBase(BaseModel):
     ID:int
-    BorrowDate: Date
+    BorrowDate: datetime
 
 
 class CreateBorrowBook(BorrowBookBase):

@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 
 def create_user(db: Session, user_schema: schemas.UserCreate):
-    new_user = models.User(user_schema.UUID,user_schema.Name, user_schema.LastName, user_schema.Phone, user_schema.Email, user_schema.Password, user_schema.Role)
+    new_user = models.User(**user_schema.dict())
     db.add(new_user)
     db.commit()
 
@@ -27,7 +27,7 @@ def get_user_phone(db:Session, phone: str):
 #-------
 
 def create_title(db:Session, title_schema:schemas.TitleCreate):
-    new_title = models.Title(title_schema.ISBN, Title=title_schema.Title, Author=title_schema.Author)
+    new_title = models.Title(**title_schema.dict())
     db.add(new_title)
     db.commit()
 
@@ -43,7 +43,7 @@ def get_title_by_isbn(db:Session, isbn:str):
 #-------
 
 def create_book(db:Session, book_schema: schemas.BookCreate):
-    new_book = models.Book(ISBN=book_schema.ISBN, ID=book_schema.ID)
+    new_book = models.Book(**book_schema.dict())
     db.add(new_book)
     db.commit()
 
@@ -56,7 +56,7 @@ def get_book_by_id(db:Session, id:int):
 #-------
 
 def create_borrowed(db:Session, borrow_schema = schemas.CreateBorrowBook):
-    new_borrow = models.BorrowBook(ClientUID=borrow_schema.ClientUUID, BookId=borrow_schema.BookID, BorrowDate=borrow_schema.BorrowDate)
+    new_borrow = models.BorrowBook(**borrow_schema.dict())
     db.add(new_borrow)
     db.commit()
 

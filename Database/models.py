@@ -39,10 +39,10 @@ class BorrowBook(Base):
     __tablename__ = 'BorrowedBooks'
 
     ID = Column(Integer, primary_key=True, nullable=False, unique=True)
-    ClientUID = Column(Integer,  nullable=False, unique=True)
-    BookId = Column(Integer, nullable=False, unique=True)
+    ClientUID = Column(Integer,ForeignKey("Users.UID"),  nullable=False, unique=True)
+    BookId = Column(Integer,ForeignKey("Books.ID"), nullable=False, unique=True)
     BorrowDate = Column(Date,nullable=False)
     ReturnDate = Column(Date,nullable=True)
 
-    Client = relationship("Client")
+    User = relationship("User")
     Book = relationship("Book")
