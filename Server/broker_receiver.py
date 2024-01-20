@@ -1,5 +1,5 @@
 import paho.mqtt.client as mqtt
-from .requests import Request
+from Server.request_handler import RequestHandler
 
 broker = "10.108.33.125"
 
@@ -15,8 +15,8 @@ def process_message(client, userdata, message):
     timestamp = ""
     uuid = ""
 
-    req = Request("127.0.0.1:8000")
-    req.post_json((timestamp, uuid))
+    req = RequestHandler("127.0.0.1:8000")
+    req.post_card(uuid)
     
     print(current_message)
 
