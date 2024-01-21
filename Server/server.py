@@ -2,6 +2,12 @@ from http.server import BaseHTTPRequestHandler
 import socketserver
 import cgi
 import Server.subject as subject
+import Database.crud as crud
+import Database.database as db
+import Database.schemas as schemas
+import datetime
+
+DATE_FORMAT = "%Y-%m-%d"
 
 class Server(socketserver.TCPServer, subject.Subject):
     def __init__(self, server_address):
@@ -30,6 +36,13 @@ class ServerHandler(BaseHTTPRequestHandler):
         if len(path_arr) == 2:
             req_type = path_arr[0]
             req_id = path_arr[1]
+            match req_type:
+                case 'user':
+                    pass
+                case 'book':
+                    pass
+                case _:
+                    pass
 
         self.wfile.write(str.encode(self.path))
 
@@ -43,14 +56,97 @@ class ServerHandler(BaseHTTPRequestHandler):
         
         method = form.getvalue('_method')
 
+        response = ""
+
         match method:
             case 'card':
                 uuid = form.getvalue('uuid')
-                #TODO sth with database
+                if crud.get_user_uid(db.SessionLocal(), uuid):
+                    response = "OK"
+                else:
+                    response = "Unknown user"
                 self.server.notify_observers((method, uuid))
-                self.wfile.write(str.encode("OK"))
+            case 'login':
+                uuid = form.getvalue('login')
+                password = form.getvalue('password')
+                user = crud.get_user_uid(db.SessionLocal(), uuid)
+                if user:
+                    if user.Password == password:
+                        response = "OK"
+                    else:
+                        response = "Wrong password"
+                else:
+                    response = "Unknown user"
+            case 'register':
+                uuid = form.getvalue('uuid')
+                name = form.getvalue('name')
+                surname = form.getvalue('surname')
+                phone = form.getvalue('phone')
+                email = form.getvalue('email')
+                password = form.getvalue('password')
+                role = form.getvalue('role')
+                crud.create_user(db.SessionLocal(), schemas.UserCreate(
+                    UID=uuid,
+                    Name=name,
+                    LastName=surname,
+                    Phone=phone,
+                    Email=email,
+                    Password=password,
+                    Role=role
+                ))
+                response = "OK"
+            case 'rent':
+                uuid = form.getvalue('uuid')
+                book_id = form.getvalue('book')
+                book = crud.get_book_by_id(db.SessionLocal(), book_id)
+                if book:
+                    user = crud.get_user_uid(db.SessionLocal(), uuid)
+                    if user:
+                        crud.create_borrowed(db.SessionLocal(), schemas.CreateBorrowBook(
+                            BorrowDate=datetime.datetime.now().strftime(DATE_FORMAT),
+                            ClientUUID=uuid,
+                            BookID=book_id
+                        ))
+                    else:
+                        response = "User unknown"
+                else:
+                    response = "Book unknown"
+            case 'return':
+                uuid = form.getvalue('uuid')
+                book_id = form.getvalue('book')
+                book = crud.get_book_by_id(db.SessionLocal(), book_id)
+                if book:
+                    user = crud.get_user_uid(db.SessionLocal(), uuid)
+                    if user:
+                        borrowed_book = crud.get_c_borrow_usr_book(db.SessionLocal(), uuid, book_id)
+                        if borrowed_book:
+                            borrowed_book.ReturnDate = datetime.datetime.now().strftime(DATE_FORMAT)
+                        else:
+                            response = "Book not rented"
+                    else:
+                        response = "User unknown"
+                else:
+                    response = "Book unknown"
+            case 'insert':
+                author = form.getvalue('author')
+                title = form.getvalue('title')
+                isbn = form.getvalue('isbn')
+                title_instance = crud.get_title_by_isbn(db.SessionLoca(), isbn)
+                if title_instance == None:
+                    crud.create_title(db.SessionLocal(), schemas.TitleCreate(
+                        ISBN=isbn,
+                        Author=author,
+                        Title=title
+                    ))
+                    title_instance = crud.get_title_by_isbn(db.SessionLoca(), isbn)
+                crud.create_book(db.SessionLocal(), schemas.BookCreate(
+                    ISBN=isbn
+                ))
+                response = "OK"
             case _:
                 self.wfile.write(str.encode("UNKNOWN"))
+
+        self.wfile.write(str.encode(response))
         
 
 if __name__ == "__main__":
