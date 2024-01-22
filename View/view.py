@@ -19,6 +19,7 @@ class Gui(tk.Tk,):
         super().__init__()
 
         self.my_state = State.LOGIN
+        self.my_prev_state = State.LOGIN
 
         self.title("Book manager system")
 
@@ -56,9 +57,11 @@ class Gui(tk.Tk,):
         for displayed_frame in self.winfo_children():
             displayed_frame.pack_forget()
 
+        self.my_prev_state = self.my_state
+
         match view:
             case "main":
-                self.main_view.pack(fill='both', expand=True)
+                self.main_view.pack(fill='both', expand=True)   
                 self.my_state = State.MAIN
             case "manager":
                 self.rent_return_view.pack(fill='both', expand=True)
@@ -72,6 +75,9 @@ class Gui(tk.Tk,):
             case "insert":
                 self.book_inster_view.pack(fill='both', expand=True)
                 self.my_state = State.INSERT
+            case "login":
+                self.login_view.pack(fill='both', expand=True)
+                self.my_state = State.LOGIN
             case _:
                 self.main_view.pack(fill='both', expand=True)
                 self.my_state = State.MAIN
@@ -169,6 +175,7 @@ class RegisterView(tk.Frame):
         self.email_var = tk.StringVar(self)
         self.password_var = tk.StringVar(self)
         self.checkbox_var = tk.IntVar(self)
+        self.checkbox_var.set(0)
         self.uuid_var = tk.StringVar(self)
 
         self.name_label = tk.Label(self, text="Name")
@@ -182,7 +189,7 @@ class RegisterView(tk.Frame):
         self.phone_entry = tk.Entry(self, textvariable=self.phone_var, relief=tk.SUNKEN)
         self.email_entry = tk.Entry(self, textvariable=self.email_var, relief=tk.SUNKEN)
         self.password_entry = tk.Entry(self, textvariable=self.password_var, relief=tk.SUNKEN)
-        self.uuid_checkbox = tk.Checkbutton(self, text="Card", variable=self.uuid_var, state=DISABLED)
+        self.uuid_checkbox = tk.Checkbutton(self, text="Card", variable=self.checkbox_var, state=DISABLED)
 
         def back():
             self.uuid_var.set("")
@@ -192,7 +199,10 @@ class RegisterView(tk.Frame):
             self.phone_var.set("")
             self.email_var.set("")
             self.password_var.set("")
-            self.master.switch_view("main")
+            if self.master.my_prev_state == State.LOGIN:
+                self.master.switch_view("login")
+            else:
+                self.master.switch_view("main")
 
         self.register_button = tk.Button(self, text="Register")
         self.back_button = tk.Button(self, text="Back", command=back)
