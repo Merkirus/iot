@@ -71,7 +71,9 @@ class ServerHandler(BaseHTTPRequestHandler):
                 password = form.getvalue('password')
                 user = crud.get_user_uid(db.SessionLocal(), uuid)
                 if user:
-                    if user.Password == password:
+                    if user.Role != "worker":
+                        response = "Client user"
+                    elif user.Password == password:
                         response = "OK"
                     else:
                         response = "Wrong password"
