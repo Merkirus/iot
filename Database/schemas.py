@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 
 from pydantic import BaseModel
 from sqlalchemy import Date
@@ -51,17 +51,16 @@ class Book(BookBase):
 
 
 class BorrowBookBase(BaseModel):
-    BorrowDate: datetime
+    BorrowDate: date
+    ClientUID: int
+    BookID: int
 
 
 class CreateBorrowBook(BorrowBookBase):
-    ClientUID: int
-    BookId: int
+    pass
 
 
 class BorrowBook(BorrowBookBase):
     ID:int
-    BookId: int
-    ClientUID: int
     class Config:
         orm_mode = True
