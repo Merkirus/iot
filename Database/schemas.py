@@ -62,5 +62,7 @@ class CreateBorrowBook(BorrowBookBase):
 
 class BorrowBook(BorrowBookBase):
     ID:int
+    book: Book
+    client: User
     class Config:
         orm_mode = True

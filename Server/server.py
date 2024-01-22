@@ -1,11 +1,16 @@
 from http.server import BaseHTTPRequestHandler
 import socketserver
 import cgi
+
+import json
+
 import Server.subject as subject
 import Database.crud as crud
 import Database.database as db
 import Database.schemas as schemas
 import datetime
+
+from Database import database
 
 DATE_FORMAT = "%Y-%m-%d"
 
@@ -18,10 +23,19 @@ class ServerHandler(BaseHTTPRequestHandler):
     def _set_headers(self):
         self.send_response(200)
         self.send_header('Content-type', 'json')
+        self.send_header('Access-Control-Allow-Origin', '*')
         self.end_headers()
 
     def do_HEAD(self):
         self._set_headers()
+
+    def do_OPTIONS(self):
+        self.send_response(200, "ok")
+        self.send_header('Access-Control-Allow-Credentials', 'true')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        self.send_header("Access-Control-Allow-Headers", "*")
+        self.end_headers()
 
     def do_GET(self):
         self._set_headers()
@@ -33,12 +47,40 @@ class ServerHandler(BaseHTTPRequestHandler):
         
         path_arr = list(filter(None, self.path.split('/')))
 
+        print(path_arr)
+
         if len(path_arr) == 2:
             req_type = path_arr[0]
             req_id = path_arr[1]
             match req_type:
                 case 'user':
                     pass
+                case 'book':
+                    pass
+                case _:
+                    pass
+        elif len(path_arr) == 3:
+            req_type = path_arr[0]
+            req_id = path_arr[1]
+            param = path_arr[2]
+            match req_type:
+                case 'user':
+                    if crud.get_user_uid(database.SessionLocal(), int(req_id)) is not None and param == 'books':
+                        books = crud.get_borrowed_by_user(database.SessionLocal(), int(req_id))
+
+                        response = list(map(lambda x: {'id': x.ID,
+                                                       'borrowed': x.BorrowDate.strftime('%d-%m-%Y'),
+                                                       'return_until': (x.BorrowDate+datetime.timedelta(days=14)).strftime('%d-%m-%Y'),
+                                                       'days_left': ((x.BorrowDate+datetime.timedelta(days=14)) - datetime.date.today()).days,
+
+                                                       # 'days_left': ((x.BorrowDate + datetime.timedelta(days=14)) - datetime.date(day=24,month=1, year=2024)).days,
+                                                       'title': x.Book.Title.Title,
+                                                       'author': x.Book.Title.Author
+
+                                                       },books))
+                        print(json.dumps(response))
+                        self.wfile.write(str.encode(json.dumps(response)))
+                        return
                 case 'book':
                     pass
                 case _:
@@ -151,7 +193,11 @@ class ServerHandler(BaseHTTPRequestHandler):
                 self.wfile.write(str.encode("UNKNOWN"))
 
         self.wfile.write(str.encode(response))
-        
+
+
+
+
+
 
 if __name__ == "__main__":
     server_address = ("127.0.0.1", 8000)
