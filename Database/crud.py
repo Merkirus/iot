@@ -65,3 +65,10 @@ def get_c_borrow_usr_book(db:Session, clientId:int, bookId:int):
     return db.query(models.BorrowBook).filter(models.BorrowBook.BookId==bookId
                                               and models.BorrowBook.ClientUID==clientId
                                               and models.BorrowBook.ReturnDate==None).first()
+
+
+def get_borrowed_by_user(db:Session, clientId:int) :
+    return list(
+        db.query(models.BorrowBook).filter(models.BorrowBook.ClientUID == clientId
+                                           and models.BorrowBook.ReturnDate == None).all()
+    )
