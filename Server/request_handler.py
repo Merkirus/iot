@@ -54,7 +54,7 @@ class RequestHandler():
         method = 'login'
 
         #For better security hash should be added
-        response = requests.post(self.url, data={'login': login, 'password': password, '_method': login})
+        response = requests.post(self.url, data={'login': login, 'password': password, '_method': method})
 
         return response.text
     

@@ -1,4 +1,4 @@
-from datetime import datetime, date
+from datetime import datetime
 
 from pydantic import BaseModel
 from sqlalchemy import Date
@@ -18,7 +18,6 @@ class UserCreate(UserBase):
 
 
 class User(UserBase):
-    id:int
     class Config:
         orm_mode = True
 
@@ -37,11 +36,11 @@ class Title(TitleBase):
         orm_mode = True
 
 class BookBase(BaseModel):
-    ISBN: str
+    pass
 
 
 class BookCreate(BookBase):
-    pass
+    ISBN: str
 
 
 class Book(BookBase):
@@ -52,19 +51,17 @@ class Book(BookBase):
 
 
 class BorrowBookBase(BaseModel):
-    BorrowDate: date
-    ClientUID: int
-    BookID: int
+    BorrowDate: datetime
 
 
 class CreateBorrowBook(BorrowBookBase):
-    ReturnDate: date = None
-    pass
+    ClientUID: int
+    BookId: int
 
 
 class BorrowBook(BorrowBookBase):
     ID:int
-    book: Book
-    client: User
+    BookId: int
+    ClientUID: int
     class Config:
         orm_mode = True
