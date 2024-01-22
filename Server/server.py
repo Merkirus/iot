@@ -103,14 +103,15 @@ class ServerHandler(BaseHTTPRequestHandler):
                     user = crud.get_user_uid(db.SessionLocal(), uuid)
                     if user:
                         crud.create_borrowed(db.SessionLocal(), schemas.CreateBorrowBook(
-                            BorrowDate=datetime.datetime.now().strftime(DATE_FORMAT),
-                            ClientUUID=uuid,
-                            BookID=book_id
+                            BorrowDate=datetime.datetime.now(),
+                            ClientUID=uuid,
+                            BookId=book_id
                         ))
                     else:
                         response = "User unknown"
                 else:
                     response = "Book unknown"
+                response = "OK"
             case 'return':
                 uuid = form.getvalue('uuid')
                 book_id = form.getvalue('book')
@@ -120,25 +121,26 @@ class ServerHandler(BaseHTTPRequestHandler):
                     if user:
                         borrowed_book = crud.get_c_borrow_usr_book(db.SessionLocal(), uuid, book_id)
                         if borrowed_book:
-                            borrowed_book.ReturnDate = datetime.datetime.now().strftime(DATE_FORMAT)
+                            borrowed_book.ReturnDate = datetime.datetime.now()
                         else:
                             response = "Book not rented"
                     else:
                         response = "User unknown"
                 else:
                     response = "Book unknown"
+                response = "OK"
             case 'insert':
                 author = form.getvalue('author')
                 title = form.getvalue('title')
                 isbn = form.getvalue('isbn')
-                title_instance = crud.get_title_by_isbn(db.SessionLoca(), isbn)
+                title_instance = crud.get_title_by_isbn(db.SessionLocal(), isbn)
                 if title_instance == None:
                     crud.create_title(db.SessionLocal(), schemas.TitleCreate(
                         ISBN=isbn,
                         Author=author,
                         Title=title
                     ))
-                    title_instance = crud.get_title_by_isbn(db.SessionLoca(), isbn)
+                    title_instance = crud.get_title_by_isbn(db.SessionLocal(), isbn)
                 crud.create_book(db.SessionLocal(), schemas.BookCreate(
                     ISBN=isbn
                 ))

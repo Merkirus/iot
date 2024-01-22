@@ -133,6 +133,7 @@ class LoginView(tk.Frame):
     def configure_login(self, fun):
         def login():
             response = fun(self.login_var.get(), self.password_var.get())
+            popup_window(self, response)
             if response == "OK":
                 self.master.switch_view("main")
             self.password_var.set("")
@@ -244,7 +245,7 @@ class RegisterView(tk.Frame):
             self.phone_var.set("")
             self.email_var.set("")
             self.password_var.set("")
-            self.master.switch_view("main")
+            self.master.switch_view("login")
 
         self.register_button.config(command=register)
     

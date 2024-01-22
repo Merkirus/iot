@@ -36,8 +36,7 @@ class Title(TitleBase):
         orm_mode = True
 
 class BookBase(BaseModel):
-    ID: int
-
+    pass
 
 
 class BookCreate(BookBase):
@@ -45,23 +44,24 @@ class BookCreate(BookBase):
 
 
 class Book(BookBase):
+    ID: int
     title: Title
     class Config:
         orm_mode = True
 
 
 class BorrowBookBase(BaseModel):
-    ID:int
     BorrowDate: datetime
 
 
 class CreateBorrowBook(BorrowBookBase):
-    ClientUUID: int
-    BookID: int
+    ClientUID: int
+    BookId: int
 
 
 class BorrowBook(BorrowBookBase):
-    book: Book
-    client: User
+    ID:int
+    BookId: int
+    ClientUID: int
     class Config:
         orm_mode = True
