@@ -261,14 +261,17 @@ class BookInsertView(tk.Frame):
         self.author_var = tk.StringVar(self)
         self.title_var = tk.StringVar(self)
         self.isbn_var = tk.StringVar(self)
+        self.id_var = tk.StringVar(self)
 
         self.author_label = tk.Label(self, text="Author")
         self.title_label = tk.Label(self, text="Title")
         self.isbn_label = tk.Label(self, text="ISBN")
+        self.book_id_label = tk.Label(self, text="ID")
 
         self.author_entry = tk.Entry(self, textvariable=self.author_var, relief=tk.SUNKEN)
         self.title_entry = tk.Entry(self, textvariable=self.title_var, relief=tk.SUNKEN)
         self.isbn_entry = tk.Entry(self, textvariable=self.isbn_var, relief=tk.SUNKEN)
+        self.id_entry = tk.Entry(self, textvariable=self.id_var, relief=tk.SUNKEN)
 
         def back():
             self.author_var.set("")
@@ -282,10 +285,12 @@ class BookInsertView(tk.Frame):
         self.author_label.grid(column=0, row=0)
         self.title_label.grid(column=0, row=1)
         self.isbn_label.grid(column=0, row=2)
+        self.book_id_label.grid(column=0, row=3)
 
         self.author_entry.grid(column=1, row=0)
         self.title_entry.grid(column=1, row=1)
         self.isbn_entry.grid(column=1, row=2)
+        self.id_entry.grid(column=1, row=3)
 
         self.insert_button.grid(column=2, row=0)
         self.back_button.grid(column=2, row=1)
@@ -313,7 +318,7 @@ class BookManagerView(tk.Frame):
         self.book_var = tk.StringVar(self)
 
         self.user_label = tk.Label(self, text="User UUID")
-        self.book_label = tk.Label(self, text="Book ISBN")
+        self.book_label = tk.Label(self, text="Book ID")
 
         self.user_entry = tk.Entry(self, textvariable=self.user_var, relief=tk.SUNKEN, state=DISABLED)
         self.book_entry = tk.Entry(self, textvariable=self.book_var, relief=tk.SUNKEN)

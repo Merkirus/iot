@@ -24,6 +24,7 @@ class Controller(observer.Observer):
         return self.request_handler.post_login(user, password)
 
     def register(self, uuid, name, surname, phone, email, password, role):
+        print(uuid)
         return self.request_handler.post_register(uuid,
                                                   name,
                                                   surname,
@@ -37,6 +38,7 @@ class Controller(observer.Observer):
     
     def update(self, message):
         message_type, data = message
+        print(f'data: ${data}')
 
         match message_type:
             case "card":

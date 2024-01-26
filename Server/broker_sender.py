@@ -6,7 +6,6 @@ import time
 import adafruit_bme280.advanced as adafruit_bme280
 
 buzzerPin = 23
-
 terminal_id = "TO"
 broker = "localhost"
 
@@ -19,7 +18,7 @@ GPIO.output(buzzerPin, 1)
 client = mqtt.Client()
 
 def call_worker(worker_name):
-    client.publish("worker/name", worker_name + "." + terminal_id)
+    client.publish("card/id", worker_name + "." + terminal_id)
 
 def connect_to_broker():
     client.connect(broker)
@@ -47,7 +46,7 @@ def rfidRead():
 
 
 def buzzer(state):
-    GPIO.output(buzzerPin, not state)  # pylint: disable=no-member
+    GPIO.output(buzzerPin, not state)
     time.sleep(0.1)
 
 def run_sender():
@@ -65,13 +64,11 @@ def run_sender():
                 num = result[1]
                 timer = datetime.datetime.now()
                 call_worker(f"{num}")
-                # print(f"Card read UID: {uid} > {num}")
                 buzzer(True)
 
             prevResult = result
         else:
             if (prevResult and timer):
-                #print(str(datetime.datetime.now() - timer).split(":")[-1])
                 buzzer(False)
                 timer = None
                 prevResult = None

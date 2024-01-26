@@ -1,5 +1,5 @@
 import paho.mqtt.client as mqtt
-from Server.request_handler import RequestHandler
+from request_handler import RequestHandler
 
 broker = "10.108.33.125"
 
@@ -15,16 +15,18 @@ def process_message(client, userdata, message):
     timestamp = ""
     uuid = ""
 
-    req = RequestHandler("127.0.0.1:8000")
-    req.post_card(uuid)
+    print(f'message: {message_decoded}')
+
+    req = RequestHandler("http://localhost:8000")
+    req.post_card(current_message)
     
-    print(current_message)
+
 
 def connect_to_broker():
     client.connect(broker)
     client.on_message = process_message
     client.loop_start()
-    client.subscribe("worker/name")
+    client.subscribe("card/id")
 
 def disconnect_from_broker():
     client.loop_stop()

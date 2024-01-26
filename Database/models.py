@@ -1,5 +1,3 @@
-from sqlite3 import Timestamp
-
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Date
 from sqlalchemy.orm import relationship
 
@@ -30,7 +28,7 @@ class Title(Base):
 class Book(Base):
     __tablename__ = 'Books'
 
-    ID = Column(Integer,primary_key=True, nullable=False,index=True, unique=True)
+    ID = Column(Integer,primary_key=True, nullable=False, unique=True)
     ISBN = Column(String, ForeignKey("Titles.ISBN"),nullable=False)
 
     Title = relationship("Title")
