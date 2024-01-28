@@ -12,13 +12,11 @@ def process_message(client, userdata, message):
 
     current_message = message_decoded[0]
 
-    timestamp = ""
-    uuid = ""
-
     print(f'message: {message_decoded}')
 
-    req = RequestHandler("http://localhost:8000")
-    req.post_card(current_message)
+    if current_message.isdigit():
+        req = RequestHandler("http://localhost:8000")
+        req.post_card(current_message)
     
 
 

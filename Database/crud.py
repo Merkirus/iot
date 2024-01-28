@@ -1,5 +1,6 @@
 from . import models, schemas
 from sqlalchemy.orm import Session
+from sqlalchemy import select, and_
 
 
 #-------
@@ -79,7 +80,7 @@ def create_borrowed(db:Session, borrow_schema = schemas.CreateBorrowBook):
 def get_c_borrow_usr_book(db:Session, clientId:int, bookId:int):
     res = db.query(models.BorrowBook).filter(models.BorrowBook.BookID==bookId
                                               , models.BorrowBook.ClientUID==clientId
-                                              , models.BorrowBook.ReturnDate is None).first()
+                                              , models.BorrowBook.ReturnDate == None).first()
 
     return res
 

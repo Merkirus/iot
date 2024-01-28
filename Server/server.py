@@ -211,16 +211,19 @@ class ServerHandler(BaseHTTPRequestHandler):
                 if book:
                     user = crud.get_user_uid(session, uuid)
                     if user:
-                        crud.create_borrowed(session, schemas.CreateBorrowBook(
-                            BorrowDate=datetime.date.today(),
-                            ClientUID=uuid,
-                            BookID=book_id
-                        ))
+                        if crud.get_c_borrow_usr_book(session, uuid, book_id) != None:
+                            response = "Book borrowed"
+                        else:
+                            crud.create_borrowed(session, schemas.CreateBorrowBook(
+                                BorrowDate=datetime.date.today(),
+                                ClientUID=uuid,
+                                BookID=book_id
+                            ))
+                            response = "OK"
                     else:
                         response = "User unknown"
                 else:
                     response = "Book unknown"
-                response = "OK"
             case 'return':
                 uuid = form.getvalue('uuid')
                 book_id = form.getvalue('book')
