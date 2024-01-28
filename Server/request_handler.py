@@ -40,12 +40,13 @@ class RequestHandler():
 
         return response.text
 
-    def post_book(self, author, title, isbn):
+    def post_book(self, author, title, isbn, id):
         method = 'insert'
 
         response = requests.post(self.url, data={'author': author,
                                                  "title": title,
                                                  "isbn": isbn,
+                                                 "id":id,
                                                  "_method": method})
 
         return response.text

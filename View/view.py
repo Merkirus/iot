@@ -277,6 +277,7 @@ class BookInsertView(tk.Frame):
             self.author_var.set("")
             self.title_var.set("")
             self.isbn_var.set("")
+            self.id_var.set("")
             self.master.switch_view("main")
 
         self.insert_button = tk.Button(self, text="Register")
@@ -300,11 +301,12 @@ class BookInsertView(tk.Frame):
 
     def configure_insert(self, fun):
         def insert():
-            response = fun(self.author_var.get(), self.title_var.get(), self.isbn_var.get())
+            response = fun(self.author_var.get(), self.title_var.get(), self.isbn_var.get(),self.id_var.get())
             popup_window(self, response)
             self.author_var.set("")
             self.title_var.set("")
             self.isbn_var.set("")
+            self.id_var.set("")
             self.master.switch_view("main")
 
         self.insert_button.config(command=insert)

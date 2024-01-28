@@ -28,6 +28,12 @@ class ServerHandler(BaseHTTPRequestHandler):
         self.send_header('Access-Control-Allow-Origin', '*')
         self.end_headers()
 
+    def _set_headers_code(self,code):
+        self.send_response(code)
+        self.send_header('Content-type', 'json')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.end_headers()
+
     def do_HEAD(self):
         self._set_headers()
 
@@ -35,12 +41,13 @@ class ServerHandler(BaseHTTPRequestHandler):
         self.send_response(200, "ok")
         self.send_header('Access-Control-Allow-Credentials', 'true')
         self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT')
         self.send_header("Access-Control-Allow-Headers", "*")
         self.end_headers()
 
     def do_GET(self):
-        self._set_headers()
+        print(self.headers)
+        print(self.rfile)
         form = cgi.FieldStorage(
                 fp=self.rfile,
                 headers=self.headers,
@@ -84,17 +91,63 @@ class ServerHandler(BaseHTTPRequestHandler):
 
                                                        },books))
                         print(json.dumps(response))
+                        self._set_headers()
                         self.wfile.write(str.encode(json.dumps(response)))
                         return
-                case 'book':
-                    pass
+
                 case _:
                     pass
+        elif len(path_arr) == 1:
+            path_arr =  list(filter(None, path_arr[0].split('?')))
+            print(path_arr[0])
+            match path_arr[0]:
+                case 'authenticate':
+                    final_args = dict()
+                    if len(path_arr) >= 2:
+                        args = list(filter(None, path_arr[1].split('&')))
+                        for arg in args :
+                            print(arg)
+                            splitted = list(filter(None, arg.split('=')))
+                            print(splitted)
+                            final_args[splitted[0]]=splitted[1]
+                    else:
+                        self._set_headers_code(403)
+                        self.wfile.write(str.encode('Invalid params'))
+                        return
+
+                    print(final_args)
+
+                    print('got form')
+                    email = final_args['login']
+                    password = final_args['password']
+                    user = crud.get_user_email(session, email)
+
+                    if user is None:
+                        self._set_headers_code(404)
+                        self.wfile.write(str.encode('Invalid credentials'))
+                        return
+
+                    if user.Password != password:
+                        self._set_headers_code(410)
+                        self.wfile.write(str.encode('Invalid credentials'))
+                        return
+
+                    response = {
+                        'uid': user.UID
+                    }
+                    self._set_headers()
+                    self.wfile.write(str.encode(json.dumps(response)))
+                    return
+
 
         self.wfile.write(str.encode(self.path))
 
+
     def do_POST(self):
-        self._set_headers()
+        print('start')
+        print(self.headers)
+
+        print(self.rfile)
         form = cgi.FieldStorage(
                 fp=self.rfile,
                 headers=self.headers,
@@ -102,7 +155,7 @@ class ServerHandler(BaseHTTPRequestHandler):
             )
         
         method = form.getvalue('_method')
-
+        self._set_headers()
         response = ""
 
         match method:
@@ -135,16 +188,22 @@ class ServerHandler(BaseHTTPRequestHandler):
                 email = form.getvalue('email')
                 password = form.getvalue('password')
                 role = form.getvalue('role')
-                crud.create_user(session, schemas.UserCreate(
-                    UID=int(uuid),
-                    Name=name,
-                    LastName=surname,
-                    Phone=phone,
-                    Email=email,
-                    Password=password,
-                    Role=role
-                ))
-                response = "OK"
+
+                if uuid is None or name is None or surname is None or phone is None or email is None or password is None or role is None:
+                    response = "All field are required"
+                else:
+                    crud.create_user(session, schemas.UserCreate(
+                        UID=int(uuid),
+                        Name=name,
+                        LastName=surname,
+                        Phone=phone,
+                        Email=email,
+                        Password=password,
+                        Role=role
+                    ))
+                    response = "OK"
+
+
             case 'rent':
                 uuid = form.getvalue('uuid')
                 book_id = form.getvalue('book')
@@ -173,7 +232,7 @@ class ServerHandler(BaseHTTPRequestHandler):
                         if borrowed_book:
                             borrowed_book.ReturnDate = datetime.date.today()
                             crud.save_borrowed(session,borrowed_book)
-                            print(crud.get_c_borrow_usr_book(session,borrowed_book.ClientUID,borrowed_book.BookID).ReturnDate.strftime('%d-%m-%Y'))
+                            response = "OK"
                             
                         else:
                             response = "Book not rented"
@@ -181,23 +240,40 @@ class ServerHandler(BaseHTTPRequestHandler):
                         response = "User unknown"
                 else:
                     response = "Book unknown"
-                response = "OK"
+
             case 'insert':
                 author = form.getvalue('author')
                 title = form.getvalue('title')
                 isbn = form.getvalue('isbn')
+                id = form.getvalue("id")
+                if author is None or title is None or isbn is None or id is None:
+                    response = 'All fields are required'
+                    self.wfile.write(str.encode(response))
+                    return
+
+                if crud.get_book_by_id(session,id) is not None:
+                    response = 'Book with given id already exists'
+                    self.wfile.write(str.encode(response))
+                    return
+
+
+
                 title_instance = crud.get_title_by_isbn(db.SessionLocal(), isbn)
+
                 if title_instance == None:
                     crud.create_title(session, schemas.TitleCreate(
                         ISBN=isbn,
                         Author=author,
                         Title=title
                     ))
-                    title_instance = crud.get_title_by_isbn(db.SessionLocal(), isbn)
+
                 crud.create_book(session, schemas.BookCreate(
-                    ISBN=isbn
+                    ISBN=isbn,
+                    id=id
                 ))
                 response = "OK"
+
+
             case _:
                 self.wfile.write(str.encode("UNKNOWN"))
 

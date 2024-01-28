@@ -33,8 +33,8 @@ class Controller(observer.Observer):
                                                   password,
                                                   role)
     
-    def insert_book(self, author, title, isbn):
-        return self.request_handler.post_book(author, title, isbn)
+    def insert_book(self, author, title, isbn, id):
+        return self.request_handler.post_book(author, title, isbn, id)
     
     def update(self, message):
         message_type, data = message
